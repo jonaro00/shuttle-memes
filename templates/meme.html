@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="UTF-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1.0">
+        <title>Shuttle Memes</title>
+        <link href="/static/style.css" rel="stylesheet"/>
+    </head>
+    <body>
+        <header>
+            <a href="/"><img src="/static/shuttle_memes.png" alt="logo" class="logo"></a>
+        </header>
+        <main>
+            <img src="{{ img }}" alt="meme" class="meme">
+            <div style="display: flex; justify-content: space-between; margin-top: 20px;">
+                {% let len = prev.len() %}
+                {% if len > 0 %}
+                    <a href="{{ prev }}">Previous</a>
+                {% else %}
+                    <div></div>
+                {% endif %}
+                {% let len = next.len() %}
+                {% if len > 0 %}
+                    <a href="{{ next }}">Next</a>
+                {% else %}
+                    <div></div>
+                {% endif %}
+            </div>
+        </main>
+    </body>
+</html>

@@ -1,0 +1,50 @@
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+img {
+    display: block;
+}
+
+a {
+    color: aqua;
+    text-decoration: none;
+}
+
+body {
+    font-size: 150%;
+    background-color: #111;
+    color: azure;
+
+    height: calc(100vh - 16px);
+    display: flex;
+    flex-direction: column;
+    /* flex-wrap: wrap;
+    align-content: center; */
+    gap: 15px;
+
+    & header {
+        flex-grow: 0;
+
+        display: flex;
+        justify-content: center;
+
+        & img.logo {
+            height: 110px;
+        }
+    }
+
+    & main {
+        flex-grow: 1;
+
+        width: 700px;
+        margin: auto;
+
+        & img.meme {
+            margin: auto;
+            max-height: 700px;
+        }
+    }
+}
