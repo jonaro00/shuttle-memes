@@ -8,6 +8,7 @@ use axum::{
     routing::get,
     Router,
 };
+use shuttle_runtime::tracing::log::warn;
 use tower_http::services::ServeDir;
 
 static MEME_COUNT: OnceLock<usize> = OnceLock::new();
@@ -17,6 +18,7 @@ static MEME_COUNT: OnceLock<usize> = OnceLock::new();
 struct HomeTemplate {}
 
 async fn home() -> impl IntoResponse {
+    warn!("HOME CALLED");
     let home = HomeTemplate {};
     HtmlTemplate(home)
 }
