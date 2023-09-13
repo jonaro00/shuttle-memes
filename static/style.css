@@ -18,11 +18,8 @@ body {
     background-color: #111;
     color: azure;
 
-    height: calc(100vh - 16px);
     display: flex;
     flex-direction: column;
-    /* flex-wrap: wrap;
-    align-content: center; */
     gap: 15px;
 
     & header {
@@ -47,4 +44,9 @@ body {
             max-height: 700px;
         }
     }
+}
+
+.collection {
+    border-top: 3px solid white;
+    margin-bottom: 20px;
 }

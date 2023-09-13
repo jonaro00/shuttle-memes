@@ -1,4 +1,4 @@
-use std::{path::PathBuf, sync::OnceLock};
+use std::{collections::BTreeMap, path::PathBuf, sync::OnceLock};
 
 use askama::Template;
 use axum::{
@@ -8,17 +8,15 @@ use axum::{
     routing::get,
     Router,
 };
-use shuttle_runtime::tracing::log::warn;
 use tower_http::services::ServeDir;
 
-static MEME_COUNT: OnceLock<usize> = OnceLock::new();
+static MEME_COUNTS: OnceLock<BTreeMap<u32, usize>> = OnceLock::new();
 
 #[derive(Template)]
 #[template(path = "home.html")]
 struct HomeTemplate {}
 
 async fn home() -> impl IntoResponse {
-    warn!("HOME CALLED");
     let home = HomeTemplate {};
     HtmlTemplate(home)
 }
@@ -31,17 +29,17 @@ struct MemeTemplate {
     next: String,
 }
 
-async fn meme(Path(id): Path<u32>) -> impl IntoResponse {
-    let total = MEME_COUNT.get().unwrap();
+async fn meme(Path((cid, id)): Path<(u32, u32)>) -> impl IntoResponse {
+    let total = MEME_COUNTS.get().unwrap().get(&cid).unwrap();
     let meme = MemeTemplate {
-        img: format!("/static/memes/{}.jpg", id),
+        img: format!("/static/collections/{cid}/memes/{id}.jpg"),
         prev: if id - 1 > 0 {
-            format!("/meme/{}", id - 1)
+            format!("{}", id - 1)
         } else {
             "".into()
         },
         next: if id + 1 <= *total as u32 {
-            format!("/meme/{}", id + 1)
+            format!("{}", id + 1)
         } else {
             "".into()
         },
@@ -53,17 +51,19 @@ async fn meme(Path(id): Path<u32>) -> impl IntoResponse {
 async fn axum(
     #[shuttle_static_folder::StaticFolder] static_folder: PathBuf,
 ) -> shuttle_axum::ShuttleAxum {
-    MEME_COUNT
-        .set(
-            std::fs::read_dir(&static_folder.join("memes"))
-                .unwrap()
-                .count(),
-        )
-        .unwrap();
+    let mut btm = BTreeMap::new();
+    for col in std::fs::read_dir(&static_folder.join("collections")).unwrap() {
+        let col = col.unwrap();
+        btm.insert(
+            col.file_name().to_str().unwrap().parse().unwrap(),
+            std::fs::read_dir(col.path().join("memes")).unwrap().count(),
+        );
+    }
+    MEME_COUNTS.set(btm).unwrap();
 
     let router = Router::new()
         .route("/", get(home))
-        .route("/meme/:id", get(meme))
+        .route("/collections/:cid/memes/:id", get(meme))
         .nest_service("/static", ServeDir::new(static_folder));
 
     Ok(router.into())

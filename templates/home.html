@@ -1,19 +1,19 @@
-<!DOCTYPE html>
-    <html lang="en">
-    <head>
-        <meta charset="UTF-8">
-        <meta name="viewport" content="width=device-width, initial-scale=1.0">
-        <title>Shuttle Memes</title>
-        <link href="/static/style.css" rel="stylesheet"/>
-    </head>
-    <body>
-        <header>
-            <a href="/"><img src="/static/shuttle_memes.png" alt="logo" class="logo"></a>
-        </header>
-        <main>
-            <h1>Shuttle Memes: Shuttle Batch 2 Edition</h1>
-            <img src="/static/home.gif" alt="nodar">
-            <a href="/meme/1">First Meme -></a>
-        </main>
-    </body>
-</html>
+{% extends "index.html" %}
+
+{% block content %}
+<h1>Shuttle Memes</h1>
+<i>Next release on <span style="text-decoration: line-through;">Monday</span> Tuesday</i>
+<h2>Collections</h2>
+
+<div class="collection">
+    <a href="/collections/1/memes/1">
+        <h3>Shuttle Memes: Shuttle Batch 2 Edition</h3>
+        <img src="/static/collections/1/splash.gif" alt="nodar">
+    </a>
+    <p><i>2023-06-27 - jonaro00</i></p>
+</div>
+
+<hr>
+
+<a href="https://github.com/jonaro00/shuttle-memes" target="_blank">GitHub</a>
+{% endblock %}
