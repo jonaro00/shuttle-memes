@@ -1,4 +1,4 @@
-use std::{collections::BTreeMap, path::PathBuf, sync::OnceLock};
+use std::{collections::BTreeMap, sync::OnceLock};
 
 use askama::Template;
 use axum::{
@@ -48,11 +48,9 @@ async fn meme(Path((cid, id)): Path<(u32, u32)>) -> impl IntoResponse {
 }
 
 #[shuttle_runtime::main]
-async fn axum(
-    #[shuttle_static_folder::StaticFolder] static_folder: PathBuf,
-) -> shuttle_axum::ShuttleAxum {
+async fn axum() -> shuttle_axum::ShuttleAxum {
     let mut btm = BTreeMap::new();
-    for col in std::fs::read_dir(&static_folder.join("collections")).unwrap() {
+    for col in std::fs::read_dir("static/collections").unwrap() {
         let col = col.unwrap();
         btm.insert(
             col.file_name().to_str().unwrap().parse().unwrap(),
@@ -64,7 +62,7 @@ async fn axum(
     let router = Router::new()
         .route("/", get(home))
         .route("/collections/:cid/memes/:id", get(meme))
-        .nest_service("/static", ServeDir::new(static_folder));
+        .nest_service("/static", ServeDir::new("static"));
 
     Ok(router.into())
 }
