@@ -50,3 +50,12 @@ body {
     border-top: 3px solid white;
     margin-bottom: 20px;
 }
+
+.splash {
+    max-width: 360px;
+}
+
+.creator {
+    font-style: italic;
+    text-align: right;
+}
