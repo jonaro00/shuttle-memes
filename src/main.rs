@@ -31,8 +31,25 @@ struct MemeTemplate {
 
 async fn meme(Path((cid, id)): Path<(u32, u32)>) -> impl IntoResponse {
     let total = MEME_COUNTS.get().unwrap().get(&cid).unwrap();
+    let dir = std::fs::read_dir(format!("static/collections/{cid}/memes")).unwrap();
+    let mut file = None;
+    for f in dir {
+        let f = f.unwrap().file_name().to_str().unwrap().to_owned();
+        if [
+            format!("{id}.jpg"),
+            format!("{id}.jpeg"),
+            format!("{id}.png"),
+            format!("{id}.gif"),
+        ]
+        .contains(&f)
+        {
+            file = Some(f);
+            break;
+        }
+    }
+    let file = file.unwrap_or(format!("{id}.jpg"));
     let meme = MemeTemplate {
-        img: format!("/static/collections/{cid}/memes/{id}.jpg"),
+        img: format!("/static/collections/{cid}/memes/{file}"),
         prev: if id - 1 > 0 {
             format!("{}", id - 1)
         } else {
