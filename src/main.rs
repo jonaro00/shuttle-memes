@@ -1,13 +1,7 @@
 use std::{collections::BTreeMap, sync::OnceLock};
 
-use askama::Template;
-use axum::{
-    extract::Path,
-    http::StatusCode,
-    response::{Html, IntoResponse, Response},
-    routing::get,
-    Router,
-};
+use askama_axum::Template;
+use axum::{extract::Path, response::IntoResponse, routing::get, Router};
 use tower_http::services::ServeDir;
 
 static MEME_COUNTS: OnceLock<BTreeMap<u32, usize>> = OnceLock::new();
@@ -17,8 +11,7 @@ static MEME_COUNTS: OnceLock<BTreeMap<u32, usize>> = OnceLock::new();
 struct HomeTemplate {}
 
 async fn home() -> impl IntoResponse {
-    let home = HomeTemplate {};
-    HtmlTemplate(home)
+    HomeTemplate {}
 }
 
 #[derive(Template)]
@@ -48,7 +41,8 @@ async fn meme(Path((cid, id)): Path<(u32, u32)>) -> impl IntoResponse {
         }
     }
     let file = file.unwrap_or(format!("{id}.jpg"));
-    let meme = MemeTemplate {
+
+    MemeTemplate {
         img: format!("/static/collections/{cid}/memes/{file}"),
         prev: if id - 1 > 0 {
             format!("{}", id - 1)
@@ -60,8 +54,7 @@ async fn meme(Path((cid, id)): Path<(u32, u32)>) -> impl IntoResponse {
         } else {
             "".into()
         },
-    };
-    HtmlTemplate(meme)
+    }
 }
 
 #[shuttle_runtime::main]
@@ -82,22 +75,4 @@ async fn axum() -> shuttle_axum::ShuttleAxum {
         .nest_service("/static", ServeDir::new("static"));
 
     Ok(router.into())
-}
-
-struct HtmlTemplate<T>(T);
-
-impl<T> IntoResponse for HtmlTemplate<T>
-where
-    T: Template,
-{
-    fn into_response(self) -> Response {
-        match self.0.render() {
-            Ok(html) => Html(html).into_response(),
-            Err(err) => (
-                StatusCode::INTERNAL_SERVER_ERROR,
-                format!("Failed to render template. Error: {}", err),
-            )
-                .into_response(),
-        }
-    }
 }
