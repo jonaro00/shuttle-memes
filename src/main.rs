@@ -1,12 +1,13 @@
 use std::{collections::BTreeMap, sync::OnceLock};
 
-use askama_axum::Template;
+use askama::Template;
+use askama_web::WebTemplate;
 use axum::{extract::Path, response::IntoResponse, routing::get, Router};
 use tower_http::services::ServeDir;
 
 static MEME_COUNTS: OnceLock<BTreeMap<u32, usize>> = OnceLock::new();
 
-#[derive(Template)]
+#[derive(Template, WebTemplate)]
 #[template(path = "home.html")]
 struct HomeTemplate {}
 
@@ -14,7 +15,7 @@ async fn home() -> impl IntoResponse {
     HomeTemplate {}
 }
 
-#[derive(Template)]
+#[derive(Template, WebTemplate)]
 #[template(path = "meme.html")]
 struct MemeTemplate {
     img: String,
@@ -71,7 +72,7 @@ async fn axum() -> shuttle_axum::ShuttleAxum {
 
     let router = Router::new()
         .route("/", get(home))
-        .route("/collections/:cid/memes/:id", get(meme))
+        .route("/collections/{cid}/memes/{id}", get(meme))
         .nest_service("/static", ServeDir::new("static"));
 
     Ok(router.into())
