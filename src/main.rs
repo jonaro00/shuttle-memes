@@ -50,7 +50,7 @@ async fn meme(Path((cid, id)): Path<(u32, u32)>) -> impl IntoResponse {
         } else {
             "".into()
         },
-        next: if id + 1 <= *total as u32 {
+        next: if id < *total as u32 {
             format!("{}", id + 1)
         } else {
             "".into()
